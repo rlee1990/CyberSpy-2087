@@ -8,6 +8,12 @@ public class Player : MonoBehaviour
 
     public CharacterController myController;
 
+    public float mouseSensitivity = 700f;
+
+    public Transform myCameraHead;
+
+    private float cameraVerticalRotation;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -19,6 +25,14 @@ public class Player : MonoBehaviour
     {
         PlayerMovement();
 
+        float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity * Time.deltaTime;
+
+        float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        cameraVerticalRotation -= mouseY;
+
+        transform.Rotate(Vector3.up * mouseX);
+        myCameraHead.localRotation = Quaternion.Euler(cameraVerticalRotation, 0f, 0f);
     }
 
     private void PlayerMovement()
