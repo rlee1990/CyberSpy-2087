@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,10 @@ public class Player : MonoBehaviour
 
     private float cameraVerticalRotation;
 
+    public GameObject bullet;
+    public Transform firePosition;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,15 +30,16 @@ public class Player : MonoBehaviour
     {
         PlayerMovement();
 
-        float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity * Time.deltaTime;
+        CameraMovement();
+        Shoot();
+    }
 
-        float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
-        cameraVerticalRotation -= mouseY;
-        cameraVerticalRotation = Mathf.Clamp(cameraVerticalRotation, -90f, 90f);
-
-        transform.Rotate(Vector3.up * mouseX);
-        myCameraHead.localRotation = Quaternion.Euler(cameraVerticalRotation, 0f, 0f);
+    private void Shoot()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Instantiate(bullet, firePosition.position, firePosition.rotation);
+        }
     }
 
     private void PlayerMovement()
@@ -46,5 +52,18 @@ public class Player : MonoBehaviour
         movement = movement * speed * Time.deltaTime;
 
         myController.Move(movement);
+    }
+
+    private void CameraMovement()
+    {
+        float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity * Time.deltaTime;
+
+        float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        cameraVerticalRotation -= mouseY;
+        cameraVerticalRotation = Mathf.Clamp(cameraVerticalRotation, -90f, 90f);
+
+        transform.Rotate(Vector3.up * mouseX);
+        myCameraHead.localRotation = Quaternion.Euler(cameraVerticalRotation, 0f, 0f);
     }
 }
