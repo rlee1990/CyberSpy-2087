@@ -1482,6 +1482,8 @@ MonoBehaviour:
   myCameraHead: {fileID: 228690035}
   bullet: {fileID: 747417688598417618, guid: 28e0f68ebb7e24abb91e8e03346dbff1, type: 3}
   firePosition: {fileID: 82284431}
+  muzzleFlash: {fileID: 1743301284569550, guid: 1197d2bd56d0aac4a8a3ca0571e3ceee, type: 3}
+  bulletHole: {fileID: 1892351807075712, guid: 8f9782b76efb13e4883006cab49055ff, type: 3}
 --- !u!143 &1510186223
 CharacterController:
   m_ObjectHideFlags: 0
