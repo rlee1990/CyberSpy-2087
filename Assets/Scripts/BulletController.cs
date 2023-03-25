@@ -34,6 +34,11 @@ public class BulletController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        //if (other.comparetag("enemy"))
+        //{
+        //    destroy(other.gameobject);
+        //}
+
         Destroy(gameObject);
     }
 }

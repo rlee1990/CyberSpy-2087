@@ -6,6 +6,18 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public float speed = 12.5f;
+    public float crouchSpeed = 6f;
+    private bool isCrouching = false;
+
+    public Vector3 velocity;
+
+    public float gravityModifier;
+
+    public float jumpHeight = 100f;
+    private bool readyToJump;
+    public Transform ground;
+    public LayerMask groundLayer;
+    public float groundDistance = 0.5f;
 
     public CharacterController myController;
 
@@ -18,13 +30,17 @@ public class Player : MonoBehaviour
     public GameObject bullet;
     public Transform firePosition;
 
-    public GameObject muzzleFlash, bulletHole;
+    public GameObject muzzleFlash, bulletHole, waterLeak;
+
+
+    private Vector3 crouchScale = new Vector3(1, 0.5f, 1);
+    private Vector3 playerScale;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        playerScale = transform.localScale;
     }
 
     // Update is called once per frame
@@ -33,7 +49,43 @@ public class Player : MonoBehaviour
         PlayerMovement();
 
         CameraMovement();
+        Jump();
         Shoot();
+        Crouching();
+    }
+
+    private void Crouching()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftAlt))
+        {
+            StartCrouching();
+        }
+        if (Input.GetKeyUp(KeyCode.LeftAlt))
+        {
+            StopCrouching();
+        }
+    }
+
+    private void StartCrouching()
+    {
+        transform.localScale = crouchScale;
+        isCrouching = true;
+    }
+
+    private void StopCrouching()
+    {
+        transform.localScale = playerScale;
+        isCrouching = false;
+    }
+
+    void Jump()
+    {
+        readyToJump = Physics.OverlapSphere(ground.position, groundDistance, groundLayer).Length > 0;
+        if (Input.GetButtonDown("Jump") && readyToJump)
+        {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y) * Time.deltaTime;
+        }
+        myController.Move(velocity);
     }
 
     private void Shoot()
@@ -47,6 +99,15 @@ public class Player : MonoBehaviour
                 if (Vector3.Distance(myCameraHead.position, hit.point) > 2f)
                 {
                     firePosition.LookAt(hit.point);
+                    if (hit.collider.tag == "Shootable")
+                        Instantiate(bulletHole, hit.point, Quaternion.LookRotation(hit.normal));
+                    if (hit.collider.CompareTag("plane"))
+                        Instantiate(waterLeak, hit.point, Quaternion.LookRotation(hit.normal));
+                }
+
+                if (hit.collider.CompareTag("enemy"))
+                {
+                    Destroy(hit.collider.gameObject);
                 }
                 
             } else
@@ -65,9 +126,21 @@ public class Player : MonoBehaviour
 
         Vector3 movement = x * transform.right + z * transform.forward;
 
-        movement = movement * speed * Time.deltaTime;
+        if (isCrouching) {
+            movement = movement * crouchSpeed * Time.deltaTime;
+        } else
+        {
+            movement = movement * speed * Time.deltaTime;
+        }
 
         myController.Move(movement);
+        velocity.y += Physics.gravity.y * Mathf.Pow(Time.deltaTime, 2) * gravityModifier;
+
+        if (myController.isGrounded)
+            velocity.y = Physics.gravity.y * Time.deltaTime;
+       
+         myController.Move(velocity);
+        
     }
 
     private void CameraMovement()
@@ -81,5 +154,6 @@ public class Player : MonoBehaviour
 
         transform.Rotate(Vector3.up * mouseX);
         myCameraHead.localRotation = Quaternion.Euler(cameraVerticalRotation, 0f, 0f);
+        
     }
 }
