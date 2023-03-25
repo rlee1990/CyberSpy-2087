@@ -30,17 +30,24 @@ public class Player : MonoBehaviour
     public GameObject bullet;
     public Transform firePosition;
 
+    public Transform myBody;
+    private float initialControllerHeight;
+
     public GameObject muzzleFlash, bulletHole, waterLeak;
 
 
     private Vector3 crouchScale = new Vector3(1, 0.5f, 1);
-    private Vector3 playerScale;
+    private Vector3 bodyScale;
+
+    public Animator playerAnimator;
+
 
 
     // Start is called before the first frame update
     void Start()
     {
-        playerScale = transform.localScale;
+        bodyScale = myBody.localScale;
+        initialControllerHeight = myController.height;
     }
 
     // Update is called once per frame
@@ -56,11 +63,11 @@ public class Player : MonoBehaviour
 
     private void Crouching()
     {
-        if (Input.GetKeyDown(KeyCode.LeftAlt))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             StartCrouching();
         }
-        if (Input.GetKeyUp(KeyCode.LeftAlt))
+        if (Input.GetKeyUp(KeyCode.C))
         {
             StopCrouching();
         }
@@ -68,13 +75,17 @@ public class Player : MonoBehaviour
 
     private void StartCrouching()
     {
-        transform.localScale = crouchScale;
+        myBody.localScale = crouchScale;
+        myCameraHead.position -= new Vector3(0, 1f, 0);
+        myController.height /= 2;
         isCrouching = true;
     }
 
     private void StopCrouching()
     {
-        transform.localScale = playerScale;
+        myBody.localScale = bodyScale;
+        myCameraHead.position += new Vector3(0, 1f, 0);
+        myController.height = initialControllerHeight;
         isCrouching = false;
     }
 
@@ -132,6 +143,8 @@ public class Player : MonoBehaviour
         {
             movement = movement * speed * Time.deltaTime;
         }
+
+        playerAnimator.SetFloat("PlayerSpeed", movement.magnitude);
 
         myController.Move(movement);
         velocity.y += Physics.gravity.y * Mathf.Pow(Time.deltaTime, 2) * gravityModifier;
